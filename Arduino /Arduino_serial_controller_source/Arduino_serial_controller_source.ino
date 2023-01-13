@@ -1,3 +1,12 @@
+#include <SoftwareSerial.h>
+
+const int BT_STATE_PIN = 4;
+int btState = 0;
+const int BT_RX_PIN = 3;
+const int BT_TX_PIN = 2;
+
+SoftwareSerial btSerial(BT_TX_PIN, BT_RX_PIN); // RX, TX
+
 const int RED_LED = 10;
 const int YELLOW_LED = 9;
 const int GREEN_LED = 8;
@@ -22,6 +31,10 @@ void setup() {
   pinMode(GREEN_LED, OUTPUT);
   
   pinMode(WHITE_BUTTON, INPUT);
+  pinMode(btState,INPUT); 
+
+  Serial.println("Init BT Sofware Serial:");
+  btSerial.begin(9600);
 }
 
 void loop() {
@@ -47,10 +60,20 @@ void loop() {
     serialUpdate();
   }
 
+
+  // Serial connection management
+  // Something happen over hardware serial (Computer Terminal)
   if(Serial.available()){
-    currentLight = Serial.parseInt();
+    //currentLight = Serial.parseInt();
+    btSerial.write(Serial.read());
+  }
+
+  // Something happen over software serial (Bluetooth SPP Module)
+  if (btSerial.available()){
+    Serial.println("BT Serial recieved");
+    char charRead = btSerial.read();
+    Serial.write(charRead);
     switchLight();
-    Serial.println("OK");
   }
 }
 
